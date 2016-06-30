@@ -39,7 +39,7 @@ module.exports = function(config) {
        * app.isTarget('foo');
        * //=> false
        *
-       * var Target = require('target');
+       * var Target = require('expand-target');
        * var target = new Target();
        * app.isTarget(target);
        * //=> true
@@ -53,17 +53,14 @@ module.exports = function(config) {
       isTarget: utils.Target.isTarget,
 
       /**
-       * Get target `name` from `app.targets`, or set target `name` with the given
-       * `config`.
+       * Get target `name` from `app.targets`, or set target `name` with the given `config`.
        *
        * ```js
        * app.target('foo', {
-       *   docs: {
-       *     options: {},
-       *     files: {
-       *       src: ['*'],
-       *       dest: 'foo'
-       *     }
+       *   options: {},
+       *   files: {
+       *     src: ['*'],
+       *     dest: 'foo'
        *   }
        * });
        *
@@ -94,15 +91,14 @@ module.exports = function(config) {
        *
        * ```js
        * app.addTarget('foo', {
-       *   docs: {
-       *     options: {},
-       *     files: {
-       *       src: ['*'],
-       *       dest: 'foo'
-       *     }
+       *   options: {},
+       *   files: {
+       *     src: ['*'],
+       *     dest: 'foo'
        *   }
        * });
        * ```
+       * @name .setTarget
        * @param {String} `name`
        * @param {Object|Function} `config`
        * @api public
@@ -120,23 +116,22 @@ module.exports = function(config) {
       },
 
       /**
-       * Get target `name` from `app.targets`, or return a normalized
-       * instance of `Target` if an object or function is passed.
+       * Get target `name` from `app.targets`, or return a normalized instance of `Target`
+       * if an object or function is passed.
        *
        * ```js
        * var target = app.getTarget('foo');
        *
        * // or create an instance of `Target` using the given object
        * var target = app.getTarget({
-       *   docs: {
-       *     options: {},
-       *     files: {
-       *       src: ['*'],
-       *       dest: 'foo'
-       *     }
+       *   options: {},
+       *   files: {
+       *     src: ['*'],
+       *     dest: 'foo'
        *   }
        * });
        * ```
+       * @name .getTarget
        * @param {String} `name`
        * @param {Object} `options`
        * @api public
@@ -203,70 +198,68 @@ module.exports = function(config) {
 
         decorate(this, config);
         return config;
+      },
+
+      /**
+       * Asynchronously generate files from a declarative [target][expand-target] configuration.
+       *
+       * ```js
+       * var Target = require('target');
+       * var target = new Target({
+       *   options: {cwd: 'source'},
+       *   src: ['content/*.md']
+       * });
+       *
+       * app.targetSeries(target, function(err) {
+       *   if (err) console.log(err);
+       * });
+       * ```
+       * @name .targetSeries
+       * @param {Object} `target` Target configuration object.
+       * @param {Function} `next` Optional callback function. If not passed, `.targetStream` will be called and a stream will be returned.
+       * @api public
+       */
+
+      targetSeries: function(target, options, next) {
+        if (typeof options === 'function') {
+          next = options;
+          options = {};
+        }
+
+        if (typeof next !== 'function') {
+          return this.targetStream(target, options);
+        }
+        this.each(target, options, next);
+      },
+
+      /**
+       * Generate files from a declarative [target][expand-target] configuration.
+       *
+       * ```js
+       * var Target = require('target');
+       * var target = new Target({
+       *   options: {},
+       *   files: {
+       *     src: ['*'],
+       *     dest: 'foo'
+       *   }
+       * });
+       *
+       * app.targetStream(target)
+       *   .on('error', console.error)
+       *   .on('end', function() {
+       *     console.log('done!');
+       *   });
+       * ```
+       * @name .targetStream
+       * @param {Object} `target` [target][expand-target] configuration object.
+       * @return {Stream} returns a stream with all processed files.
+       * @api public
+       */
+
+      targetStream: function(target, options, cb) {
+        return this.eachStream(target, options);
       }
-    });
-
-    /**
-     * Asynchronously generate files from a declarative [target][] configuration.
-     *
-     * ```js
-     * var Target = require('target');
-     * var target = new Target({
-     *   options: {cwd: 'source'},
-     *   src: ['content/*.md']
-     * });
-     *
-     * app.targetSeries(target, function(err) {
-     *   if (err) console.log(err);
-     * });
-     * ```
-     * @name .target
-     * @param {Object} `target` Target configuration object.
-     * @param {Function} `next` Optional callback function. If not passed, `.targetStream` will be called and a stream will be returned.
-     * @api public
-     */
-
-    this.define('targetSeries', function(target, options, next) {
-      if (typeof options === 'function') {
-        next = options;
-        options = {};
-      }
-
-      if (typeof next !== 'function') {
-        return this.targetStream(target, options);
-      }
-      this.each(target, options, next);
-    });
-
-    /**
-     * Generate files from a declarative [target][] configuration.
-     *
-     * ```js
-     * var Target = require('target');
-     * var target = new Target({
-     *   options: {cwd: 'source'},
-     *   posts: {
-     *     src: ['content/*.md']
-     *   },
-     *   pages: {
-     *     src: ['templates/*.hbs']
-     *   }
-     * });
-     *
-     * app.targetStream(target)
-     *   .on('error', console.error)
-     *   .on('end', function() {
-     *     console.log('done!');
-     *   });
-     * ```
-     * @name .targetStream
-     * @param {Object} `target` [target][] configuration object.
-     * @return {Stream} returns a stream with all processed files.
-     * @api public
-     */
-
-    this.define('targetStream', function(target, options, cb) {
-      return this.eachStream(target, options);
     });
 
     /**

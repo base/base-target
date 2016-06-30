@@ -1,17 +1,16 @@
 'use strict';
 
-var forOwn = require('for-own');
 var target = require('./');
-var Base = require('base-app');
-var app = new Base();
+var Base = require('base');
+var app = new Base({isApp: true});
 
 app.use(target());
 
-app.on('target', function(target) {
-  app.task(target.name, function(cb) {
-    target.generate(cb);
-  });
-});
+// app.on('target', function(target) {
+//   app.task(target.name, function(cb) {
+//     target.generate(cb);
+//   });
+// });
 
 app.target('site', {
   options: {},
@@ -33,8 +32,6 @@ app.target('docs', {
 
 app.target('docs')
   .generate()
-  .on('error', console.error)
-  .on('data', console.log)
   .on('end', function() {
     console.log('done!');
   });
