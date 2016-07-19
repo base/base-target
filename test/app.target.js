@@ -26,7 +26,7 @@ describe('.target', function() {
       target = app.target('abc', function(options) {
         return {
           options: options,
-          foo: {src: 'b.txt'}
+          src: 'b.txt'
         };
       });
       assert.strictEqual(target.name, 'abc');
@@ -36,7 +36,7 @@ describe('.target', function() {
       target = app.target('abc', function(options) {
         return new Target({
           options: options,
-          foo: {src: 'b.txt'}
+          src: 'b.txt'
         });
       });
       assert.strictEqual(target.name, 'abc');
@@ -68,7 +68,7 @@ describe('.target', function() {
       target = app.target('abc', function(options) {
         return {
           options: options,
-          foo: {src: 'b.txt'}
+          src: 'b.txt'
         };
       });
 
@@ -85,7 +85,7 @@ describe('.target', function() {
       target = app.target('abc', function(options) {
         return {
           options: options,
-          foo: {src: 'b.txt'}
+          src: 'b.txt'
         };
       });
 
@@ -101,7 +101,7 @@ describe('.target', function() {
       target = app.target('abc', function(options) {
         return new Target({
           options: options,
-          foo: {src: 'b.txt'}
+          src: 'b.txt'
         });
       });
 
@@ -118,7 +118,7 @@ describe('.target', function() {
       target = app.target('abc', function(options) {
         return new Target({
           options: options,
-          foo: {src: 'b.txt'}
+          src: 'b.txt'
         });
       });
 
@@ -169,7 +169,7 @@ describe('.target', function() {
       app.target('abc', function(options) {
         return {
           options: options,
-          foo: {src: 'b.txt'}
+          src: 'b.txt'
         };
       });
       target = app.target('abc');

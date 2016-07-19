@@ -15,17 +15,17 @@ describe('.setTarget', function() {
   });
 
   it('should set an instance of Target on app.targets', function() {
-    app.setTarget('abc', new Target({foo: {src: 'b.txt'}}));
+    app.setTarget('abc', new Target({src: 'b.txt'}));
     assert(app.targets.abc instanceof Target);
   });
 
   it('should not create an instance from a plain object', function() {
-    app.setTarget('abc', {foo: {src: 'b.txt'}});
+    app.setTarget('abc', {src: 'b.txt'});
     assert(!(app.targets.abc instanceof Target));
   });
 
-  it('should set a target config on `app.targets`', function() {
-    app.target('abc', {foo: {src: 'b.txt'}});
+  it('should get a target config from `app.targets`', function() {
+    app.target('abc', {src: 'b.txt'});
     assert(isObject(app.targets.abc));
     assert.strictEqual(app.targets.abc.name, 'abc');
   });
