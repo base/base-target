@@ -69,12 +69,13 @@ module.exports = function(config) {
        */
 
       target: function(name, config) {
-        if (!config && typeof name === 'string' || utils.isObject(name)) {
+        if (this.isTarget(config) || typeof config === 'function') {
+          this.setTarget.apply(this, arguments);
+        }
+        if (typeof name === 'string' && this.targets.hasOwnProperty(name)) {
           return this.getTarget(name);
         }
-
-        this.setTarget.apply(this, arguments);
-        if (typeof name === 'string') {
+        if (utils.isObject(name)) {
           return this.getTarget(name);
         }
         return this;
@@ -159,6 +160,9 @@ module.exports = function(config) {
         if (typeof name === 'string') {
           opts.name = name;
         }
+        if (typeof opts.cwd === 'undefined') {
+          opts.cwd = this.cwd;
+        }
 
         if (typeof config === 'function') {
           config = config.call(this, opts);
@@ -171,8 +175,8 @@ module.exports = function(config) {
         var Target = this.get('Target');
 
         // if `config` is not an instance of Target, make it one
-        if (!(config instanceof Target)) {
-          var target = new Target(opts);
+        if (!config.isTarget) {
+          var target = new Target();
           target.options = utils.merge({}, this.options, target.options, options);
           if (typeof name === 'string') {
             target.name = name;
@@ -180,11 +184,9 @@ module.exports = function(config) {
           this.emit('target', target);
           target.on('files', this.emit.bind(this, 'files'));
           config = target.addFiles(config);
-        }
-
-        // otherwise, ensure options are merged onto the target,
-        // and all targets are emitted
-        else {
+        } else {
+          // otherwise, ensure options are merged onto the target,
+          // and all targets are emitted
           config.options = utils.merge({}, this.options, config.options, options);
           if (typeof name === 'string') {
             config.name = name;
