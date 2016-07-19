@@ -1,7 +1,7 @@
 {
   "name": "base-target",
   "description": "Plugin that adds support for defining declarative `target` configurations that directly map to functional tasks.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://github.com/node-base/base-target",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "node-base/base-target",
@@ -22,7 +22,7 @@
     "test": "mocha"
   },
   "dependencies": {
-    "expand-target": "^0.6.4",
+    "expand-target": "^0.6.5",
     "is-valid-app": "^0.2.0",
     "isobject": "^2.1.0",
     "kind-of": "^3.0.3",
@@ -33,7 +33,9 @@
     "async-each-series": "^1.1.0",
     "base-app": "^0.2.6",
     "base-files-each": "^0.1.5",
+    "expand": "^0.4.3",
     "extend-shallow": "^2.0.1",
+    "group-array": "^0.3.1",
     "gulp": "^3.9.1",
     "gulp-eslint": "^3.0.1",
     "gulp-format-md": "^0.1.9",
@@ -42,7 +44,9 @@
     "gulp-mocha": "^2.2.0",
     "gulp-unused": "^0.1.2",
     "merge-stream": "^1.0.0",
-    "mocha": "^2.5.3"
+    "mocha": "^2.5.3",
+    "through2": "^2.0.1",
+    "vinyl": "^1.1.1"
   },
   "keywords": [
     "api",
