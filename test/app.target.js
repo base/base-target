@@ -1,8 +1,6 @@
 'use strict';
 
 require('mocha');
-var fs = require('fs');
-var path = require('path');
 var assert = require('assert');
 var Target = require('expand-target');
 var isObject = require('isobject');
@@ -16,9 +14,9 @@ describe('.target', function() {
     app.use(targets());
   });
 
-  describe('return value', function() {
+  describe('Target', function() {
     it('should return an instance of Target', function() {
-      target = app.target({foo: {src: 'b.txt'}});
+      target = app.target({src: 'b.txt'});
       assert(target instanceof Target);
     });
   });
@@ -29,7 +27,7 @@ describe('.target', function() {
         return {
           options: options,
           foo: {src: 'b.txt'}
-        }
+        };
       });
       assert.strictEqual(target.name, 'abc');
     });
@@ -45,13 +43,18 @@ describe('.target', function() {
     });
 
     it('should set `target.name` when defined as a plain object', function() {
-      target = app.target('abc', {foo: {src: 'b.txt'}});
+      target = app.target('abc', {src: 'b.txt'});
       assert.strictEqual(target.name, 'abc');
     });
 
     it('should set `target.name` when defined as an instance of Target', function() {
-      target = app.target('abc', new Target({foo: {src: 'b.txt'}}));
+      target = app.target('abc', new Target({src: 'b.txt'}));
       assert.strictEqual(target.name, 'abc');
+    });
+
+    it('should return a target configuration when name is not a string', function() {
+      target = app.target(new Target({src: 'b.txt'}));
+      assert.equal(target.files[0].src, 'b.txt');
     });
   });
 
@@ -66,7 +69,7 @@ describe('.target', function() {
         return {
           options: options,
           foo: {src: 'b.txt'}
-        }
+        };
       });
 
       assert.equal(count, 1);
@@ -83,7 +86,7 @@ describe('.target', function() {
         return {
           options: options,
           foo: {src: 'b.txt'}
-        }
+        };
       });
 
       assert.equal(count, 1);
@@ -129,7 +132,7 @@ describe('.target', function() {
         count++;
       });
 
-      target = app.target('abc', {foo: {src: 'b.txt'}});
+      target = app.target('abc', {src: 'b.txt'});
       assert.equal(count, 1);
     });
 
@@ -140,14 +143,14 @@ describe('.target', function() {
         count++;
       });
 
-      target = app.target('abc', new Target({foo: {src: 'b.txt'}}));
+      target = app.target('abc', new Target({src: 'b.txt'}));
       assert.equal(count, 1);
     });
   });
 
   describe('plain object', function() {
     it('should get a target from `app.target`', function() {
-      app.target('abc', {foo: {src: 'b.txt'}});
+      app.target('abc', {src: 'b.txt'});
       assert(isObject(app.target('abc')));
       assert.strictEqual(app.target('abc').name, 'abc');
     });
@@ -155,7 +158,7 @@ describe('.target', function() {
 
   describe('instance', function() {
     it('should get an instance of Target', function() {
-      app.target('abc', new Target({foo: {src: 'b.txt'}}));
+      app.target('abc', new Target({src: 'b.txt'}));
       target = app.target('abc');
       assert(target instanceof Target);
     });
@@ -167,14 +170,14 @@ describe('.target', function() {
         return {
           options: options,
           foo: {src: 'b.txt'}
-        }
+        };
       });
       target = app.target('abc');
       assert(target instanceof Target);
     });
 
     it('should create an instance from a plain object', function() {
-      app.target('abc', {foo: {src: 'b.txt'}});
+      app.target('abc', {src: 'b.txt'});
       target = app.target('abc');
       assert(target instanceof Target);
     });
