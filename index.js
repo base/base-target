@@ -12,19 +12,13 @@ var utils = require('./utils');
 module.exports = function(config) {
   return function(app) {
     if (!utils.isValid(this, 'base-target')) return;
-    var Target;
 
     /**
-     * Register the `base-files-each` plugin
-     */
-
-    this.use(utils.each());
-
-    /**
-     * Create the cache for storing targets
+     * Targets cache
      */
 
     this.targets = this.targets || {};
+    var Target;
 
     /**
      * Add methods to the API
@@ -138,10 +132,11 @@ module.exports = function(config) {
        */
 
       getTarget: function(name, options) {
-        var opts = utils.merge({name: name}, this.options);
-        var self = this;
-        var config;
+        if (utils.isObject(name) && typeof options === 'function') {
+          return this.getTarget(options, name);
+        }
 
+        var config;
         switch (utils.typeOf(name)) {
           case 'function':
             config = name;
@@ -160,8 +155,13 @@ module.exports = function(config) {
           }
         }
 
+        var opts = utils.merge({}, this.options, options);
+        if (typeof name === 'string') {
+          opts.name = name;
+        }
+
         if (typeof config === 'function') {
-          config = config(opts);
+          config = config.call(this, opts);
         }
 
         if (!utils.isObject(config)) {
@@ -195,85 +195,22 @@ module.exports = function(config) {
         if (typeof this.run === 'function') {
           this.run(config);
         }
-
-        decorate(this, config);
         return config;
-      },
-
-      /**
-       * Asynchronously generate files from a declarative [target][expand-target] configuration.
-       *
-       * ```js
-       * var Target = require('target');
-       * var target = new Target({
-       *   options: {cwd: 'source'},
-       *   src: ['content/*.md']
-       * });
-       *
-       * app.targetSeries(target, function(err) {
-       *   if (err) console.log(err);
-       * });
-       * ```
-       * @name .targetSeries
-       * @param {Object} `target` Target configuration object.
-       * @param {Function} `next` Optional callback function. If not passed, `.targetStream` will be called and a stream will be returned.
-       * @api public
-       */
-
-      targetSeries: function(target, options, next) {
-        if (typeof options === 'function') {
-          next = options;
-          options = {};
-        }
-
-        if (typeof next !== 'function') {
-          return this.targetStream(target, options);
-        }
-        this.each(target, options, next);
-      },
-
-      /**
-       * Generate files from a declarative [target][expand-target] configuration.
-       *
-       * ```js
-       * var Target = require('target');
-       * var target = new Target({
-       *   options: {},
-       *   files: {
-       *     src: ['*'],
-       *     dest: 'foo'
-       *   }
-       * });
-       *
-       * app.targetStream(target)
-       *   .on('error', console.error)
-       *   .on('end', function() {
-       *     console.log('done!');
-       *   });
-       * ```
-       * @name .targetStream
-       * @param {Object} `target` [target][expand-target] configuration object.
-       * @return {Stream} returns a stream with all processed files.
-       * @api public
-       */
-
-      targetStream: function(target, options, cb) {
-        return this.eachStream(target, options);
       }
     });
 
     /**
-     * Get or set the `Files` constructor. Exposed as a getter/setter to allow it to be
+     * Get or set the `Target` constructor. Exposed as a getter/setter to allow it to be
      * customized before or after instantiation.
      *
      * ```js
      * // set
-     * app.Files = CustomFilesFn;
+     * app.Target = require('expand-target'); // or something custom
      *
      * // get
-     * var target = new app.Files();
+     * var target = new app.Target();
      * ```
-     * @name Files
+     * @name app.Target
      * @api public
      */
 
@@ -291,34 +228,3 @@ module.exports = function(config) {
     });
   };
 };
-
-/**
- * Decorate the given target with "generate" methods
- */
-
-function decorate(app, target) {
-  if (typeof target.generate === 'function') return;
-
-  target.define('generate', function(options, cb) {
-    if (typeof options === 'function') {
-      cb = options;
-      options = {};
-    }
-    if (typeof cb === 'function') {
-      return this.generateSeries.apply(this, arguments);
-    }
-    return this.generateStream.apply(this, arguments);
-  });
-
-  target.define('generateSeries', function(options, cb) {
-    var args = [].slice.call(arguments);
-    args.unshift(this);
-    return app.targetSeries.apply(app, args);
-  });
-
-  target.define('generateStream', function() {
-    var args = [].slice.call(arguments);
-    args.unshift(this);
-    return app.targetStream.apply(app, args);
-  });
-}
